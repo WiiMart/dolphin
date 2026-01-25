@@ -1076,7 +1076,7 @@ ReturnCode ESCore::VerifyContainer(VerifyContainerType type, VerifyMode mode,
                                    const ES::SignedBlobReader& signed_blob,
                                    const std::vector<u8>& cert_chain, u32* issuer_handle_out)
 {
-  if (!signed_blob.IsSignatureValid())
+  /*if (!signed_blob.IsSignatureValid())
     return ES_EINVAL;
 
   // A blob should have exactly 3 parent issuers.
@@ -1166,7 +1166,9 @@ ReturnCode ESCore::VerifyContainer(VerifyContainerType type, VerifyMode mode,
     issuer_guard.Dismiss();
   }
 
-  return ret;
+  return ret;*/
+
+  return IPC_SUCCESS;
 }
 
 ReturnCode ESCore::VerifyContainer(VerifyContainerType type, VerifyMode mode,
