@@ -92,12 +92,17 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Install Dependencies (Qt6)
+        run: |
+          brew update
+          brew install qt@6
+          brew install pkg-config
+
       - name: Build Bundle (Debug)
         run: |
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Debug
-          # 'sysctl -n hw.logicalcpu' works on both Intel and ARM macs
+          cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=$(brew --prefix qt@6)
           make -j $(sysctl -n hw.logicalcpu)
 
       - name: Compress Artifacts
