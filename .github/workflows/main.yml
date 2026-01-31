@@ -133,6 +133,13 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - name: Create Keys
+        run: |
+          mkdir -p ~/.android
+          keytool -genkey -v -keystore ~/.android/debug.keystore \
+          -storepass android -keypass android -alias androiddebugkey \
+          -keyalg RSA -keysize 2048 -validity 10000 \
+          -dname "CN=WiiMart, OU=Development, O=WiiMart, L=Vancouver, ST=BC, C=CA"
       - name: Build APK (Debug)
         working-directory: ./Source/Android
         run: ./gradlew assembleDebug
