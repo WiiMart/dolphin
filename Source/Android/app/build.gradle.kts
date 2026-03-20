@@ -42,7 +42,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "org.dolphinemu.dolphinemu"
+        applicationId = "org.dolphinemu.wiimartdolphin"
         minSdk = 24
         targetSdk = 36
 
@@ -100,7 +100,7 @@ android {
             version = "3.22.1+"
         }
     }
-    namespace = "org.dolphinemu.wiimartdolphin"
+    namespace = "org.dolphinemu.dolphinemu"
 
     defaultConfig {
         externalNativeBuild {
