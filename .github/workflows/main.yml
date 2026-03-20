@@ -26,12 +26,15 @@ jobs:
           nuget restore Source\dolphin-emu.sln
           msbuild Source\dolphin-emu.sln /p:Configuration=Debug /p:Platform=x64
 
+      - name: Find Build Output
+        shell: cmd
+        run: dir /s /b *.exe 2>nul | findstr /i dolphin
+
       - name: Compress Artifacts
         shell: cmd
         run: |
           mkdir output
-          copy Source\Binary\x64\Dolphin.exe output\
-          copy Source\Binary\x64\*.dll output\
+          xcopy /s /y "Build\x64\Debug\" output\
           7z a windows-build_x64.zip .\output\*
 
       - name: Upload Artifact
