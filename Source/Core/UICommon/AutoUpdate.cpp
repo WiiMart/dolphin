@@ -173,7 +173,7 @@ static std::string GetUpdateServerUrl()
   auto server_url = std::getenv("DOLPHIN_UPDATE_SERVER_URL");
   if (server_url)
     return server_url;
-  return "https://dolphin-emu.org";
+  return "https://updates.wiimart.org";
 }
 
 static u32 GetOwnProcessId()
