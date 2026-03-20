@@ -127,6 +127,8 @@ add_library(common
   QoSSession.h
   Random.cpp
   Random.h
+  RangeSet.h
+  RangeSizeSet.h
   ScopeGuard.h
   SDCardUtil.cpp
   SDCardUtil.h
@@ -151,6 +153,7 @@ add_library(common
   Timer.h
   TimeUtil.cpp
   TimeUtil.h
+  TransferableSharedMutex.h
   TraversalClient.cpp
   TraversalClient.h
   TraversalProto.h

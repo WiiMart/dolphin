@@ -26,6 +26,7 @@
 #include "Core/Config/FreeLookSettings.h"
 #include "Core/Config/MainSettings.h"
 #include "Core/ConfigLoaders/GameConfigLoader.h"
+#include "Core/ConfigManager.h"
 #include "Core/Core.h"
 #include "Core/GeckoCode.h"
 #include "Core/HW/Memmap.h"
@@ -167,7 +168,7 @@ void AchievementManager::LoadGame(const DiscIO::Volume* volume)
     WARN_LOG_FMT(ACHIEVEMENTS, "Software format unsupported by AchievementManager.");
     if (rc_client_get_game_info(m_client))
     {
-      rc_client_begin_change_media_from_hash(m_client, "", ChangeMediaCallback, NULL);
+      CloseGame();
     }
     else
     {
@@ -212,6 +213,25 @@ void AchievementManager::LoadGame(const DiscIO::Volume* volume)
     u32 console_id = FindConsoleID(volume->GetVolumeType());
     rc_client_begin_identify_and_load_game(m_client, console_id, "", NULL, 0, LoadGameCallback,
                                            NULL);
+  }
+}
+
+void AchievementManager::ChangeDisc(const DiscIO::Volume* volume)
+{
+  if (volume == nullptr)
+  {
+    INFO_LOG_FMT(ACHIEVEMENTS, "Ejecting disc.");
+    LoadGame(nullptr);
+  }
+  else if (volume->GetGameID() != SConfig::GetInstance().GetGameID())
+  {
+    INFO_LOG_FMT(ACHIEVEMENTS, "Inserting disc that doesn't belong to the running game.");
+    LoadGame(nullptr);
+  }
+  else
+  {
+    INFO_LOG_FMT(ACHIEVEMENTS, "Inserting disc.");
+    LoadGame(volume);
   }
 }
 
@@ -931,22 +951,8 @@ void AchievementManager::LoginCallback(int result, const char* error_message, rc
   std::string config_username = Config::Get(Config::RA_USERNAME);
   if (config_username != user->username)
   {
-    if (Common::CaseInsensitiveEquals(config_username, user->username))
-    {
-      INFO_LOG_FMT(ACHIEVEMENTS,
-                   "Case mismatch between site {} and local {}; updating local config.",
-                   user->username, Config::Get(Config::RA_USERNAME));
-      Config::SetBaseOrCurrent(Config::RA_USERNAME, user->username);
-    }
-    else
-    {
-      INFO_LOG_FMT(ACHIEVEMENTS, "Attempted to login prior user {}; current user is {}.",
-                   user->username, Config::Get(Config::RA_USERNAME));
-      rc_client_logout(client);
-      instance.update_event.Trigger({.failed_login_code = RC_INVALID_STATE});
-      instance.login_event.Trigger(RC_INVALID_STATE);
-      return;
-    }
+    INFO_LOG_FMT(ACHIEVEMENTS, "Username alias {} -> {}.", config_username, user->username);
+    Config::SetBaseOrCurrent(Config::RA_USERNAME, user->username);
   }
   instance.login_event.Trigger(RC_OK);
 
