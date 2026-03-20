@@ -100,7 +100,7 @@ android {
             version = "3.22.1+"
         }
     }
-    namespace = "org.dolphinemu.dolphinemu"
+    namespace = "org.dolphinemu.wiimartdolphin"
 
     defaultConfig {
         externalNativeBuild {
