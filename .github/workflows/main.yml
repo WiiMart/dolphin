@@ -20,17 +20,19 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Build Solution (Debug)
+      - name: Build Solution (Release)
         shell: cmd
         run: |
           nuget restore Source\dolphin-emu.sln
-          msbuild Source\dolphin-emu.sln /p:Configuration=Debug /p:Platform=x64
+          msbuild Source\dolphin-emu.sln /p:Configuration=Release /p:Platform=x64
+
       - name: Create Default Config
         shell: bash
         run: |
           mkdir -p Binary/x64/User/Config
           echo "[AutoUpdate]" > Binary/x64/User/Config/Dolphin.ini
           echo "UpdateTrack = wiimart-windows" >> Binary/x64/User/Config/Dolphin.ini
+
       - name: Compress Artifacts
         shell: cmd
         run: |
@@ -45,6 +47,7 @@ jobs:
           path: windows-build_x64.zip
 
       - name: Trigger Update Server
+        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           curl -X POST "https://updates.wiimart.org/deploy/windows/${{ secrets.UPDATER_DEPLOY_SECRET }}/${{ github.run_id }}"
@@ -63,11 +66,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake build-essential libgtk2.0-dev libsdl2-dev libxi-dev libxrandr-dev libudev-dev qt6-base-dev qt6-base-private-dev libqt6svg6-dev zip
 
-      - name: Build Portable (Debug)
+      - name: Build Portable (Release)
         run: |
           mkdir Build
           cd Build
-          cmake .. -DLINUX_LOCAL_DEV=true -DCMAKE_BUILD_TYPE=Debug
+          cmake .. -DLINUX_LOCAL_DEV=true -DCMAKE_BUILD_TYPE=Release
           make -j $(nproc)
           cp -r ../Data/Sys/ Binaries/
           touch Binaries/portable.txt
@@ -109,17 +112,19 @@ jobs:
           brew install qt@6
           brew install pkg-config
 
-      - name: Build Bundle (Debug)
+      - name: Build Bundle (Release)
         run: |
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=$(brew --prefix qt@6)
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$(brew --prefix qt@6)
           make -j $(sysctl -n hw.logicalcpu)
+
       - name: Create Default Config
         run: |
           mkdir -p build/Binaries/Dolphin.app/Contents/Resources/User/Config
           echo "[AutoUpdate]" > build/Binaries/Dolphin.app/Contents/Resources/User/Config/Dolphin.ini
           echo "UpdateTrack = wiimart-mac-${{ matrix.arch }}" >> build/Binaries/Dolphin.app/Contents/Resources/User/Config/Dolphin.ini
+
       - name: Compress Artifacts
         run: |
           cd build/Binaries
@@ -132,6 +137,7 @@ jobs:
           path: macos-build_${{ matrix.arch }}.zip
 
       - name: Trigger Update Server
+        if: github.event_name != 'pull_request'
         run: |
           curl -X POST "https://updates.wiimart.org/deploy/${{ matrix.platform }}/${{ secrets.UPDATER_DEPLOY_SECRET }}/${{ github.run_id }}"
 
@@ -151,18 +157,22 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Restore Keystore
+      - name: Setup Release Keystore
         run: |
-          mkdir -p ~/.android
-          echo "${{ secrets.DEBUG_KEYSTORE_B64 }}" | base64 -d > ~/.android/debug.keystore
+          echo "${{ secrets.B64_CERT }}" | base64 -d > Source/Android/release.jks
 
-      - name: Build APK (Debug)
+      - name: Build APK (Release)
         working-directory: ./Source/Android
-        run: ./gradlew assembleDebug
+        env:
+          RELEASE_STORE_FILE: release.jks
+          RELEASE_STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease
 
       - name: Compress Artifacts
         run: |
-          find Source/Android/app/build/outputs/apk/debug -name "*.apk" -exec zip -j android-build_arm64.zip {} +
+          find Source/Android/app/build/outputs/apk/release -name "*.apk" -exec zip -j android-build_arm64.zip {} +
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -171,5 +181,6 @@ jobs:
           path: android-build_arm64.zip
 
       - name: Trigger F-Droid Update
+        if: github.event_name != 'pull_request'
         run: |
           curl "https://fdroid.wiimart.org/web/hook/${{ secrets.FDROID_SECRET }}/${{ github.run_id }}"
