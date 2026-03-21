@@ -159,7 +159,7 @@ jobs:
 
       - name: Setup Release Keystore
         run: |
-          echo "${{ secrets.B64_CERT }}" | base64 -d > Source/Android/release.jks
+          echo "${{ secrets.B64_CERT }}" | base64 -d > Source/Android/app/release.jks
 
       - name: Build APK (Release)
         working-directory: ./Source/Android
