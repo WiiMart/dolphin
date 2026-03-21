@@ -57,12 +57,12 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            if (project.hasProperty("keystore")) {
-                storeFile = file(project.property("keystore")!!)
-                storePassword = project.property("storepass").toString()
-                keyAlias = project.property("keyalias").toString()
-                keyPassword = project.property("keypass").toString()
+        signingConfigs {
+            create("release") {
+                storeFile = file(System.getenv("RELEASE_STORE_FILE") ?: "release.jks")
+                storePassword = System.getenv("RELEASE_STORE_PASSWORD") ?: ""
+                keyAlias = System.getenv("RELEASE_KEY_ALIAS") ?: ""
+                keyPassword = System.getenv("RELEASE_KEY_PASSWORD") ?: ""
             }
         }
     }
@@ -71,9 +71,7 @@ android {
     buildTypes {
         // Signed by release key, allowing for upload to Play Store.
         release {
-            if (project.hasProperty("keystore")) {
-                signingConfig = signingConfigs.getByName("release")
-            }
+            signingConfig = signingConfigs.getByName("release")
 
             resValue("string", "app_name_suffixed", "Dolphin Emulator")
             isMinifyEnabled = true
