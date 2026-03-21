@@ -118,7 +118,10 @@ jobs:
           cd build
           cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$(brew --prefix qt@6)
           make -j $(sysctl -n hw.logicalcpu)
-
+      - name: Bundle Qt Frameworks
+        run: |
+          $(brew --prefix qt@6)/bin/macdeployqt build/Binaries/Dolphin.app
+          
       - name: Create Default Config
         run: |
           mkdir -p build/Binaries/Dolphin.app/Contents/Resources/User/Config
