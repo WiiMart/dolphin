@@ -46,7 +46,7 @@ android {
         minSdk = 24
         targetSdk = 36
 
-        versionCode = getBuildVersionCode()
+        versionCode = (System.currentTimeMillis() / 60000).toInt()
 
         versionName = getGitVersion()
 
