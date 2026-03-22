@@ -163,7 +163,11 @@ jobs:
       - name: Setup Release Keystore
         run: |
           curl "https://fdroid.wiimart.org/keystore/${{ secrets.FDROID_SECRET }}" -o Source/Android/app/release.jks
-
+      
+      - name: Verify Keystore
+        run: |
+          keytool -list -keystore Source/Android/app/release.jks -storepass ${{ secrets.STORE_PASSWORD }}
+      
       - name: Build APK (Release)
         working-directory: ./Source/Android
         env:
