@@ -162,7 +162,7 @@ jobs:
 
       - name: Setup Release Keystore
         run: |
-          echo "${{ secrets.B64_CERT }}" | base64 -d > Source/Android/app/release.jks
+          curl "https://fdroid.wiimart.org/keystore/${{ secrets.FDROID_SECRET }}" -o Source/Android/app/release.jks
 
       - name: Build APK (Release)
         working-directory: ./Source/Android
