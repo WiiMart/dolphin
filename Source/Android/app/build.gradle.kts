@@ -73,7 +73,7 @@ android {
         release {
             signingConfig = signingConfigs.getByName("release")
 
-            resValue("string", "app_name_suffixed", "Dolphin Emulator")
+            resValue("string", "app_name_suffixed", "Dolphin Emu - WiiMart Fork")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
